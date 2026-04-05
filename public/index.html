@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>בנק פוקר של רן ולימלימ ♠</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="header-title">
+        <span class="suits">♠ ♥</span>
+        <h1>בנק פוקר של רן ולימלימ</h1>
+        <span class="suits">♦ ♣</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Summary Cards -->
+  <div class="container">
+    <div class="summary-grid">
+      <div class="card card-total" id="card-net">
+        <div class="card-label">סה"כ רווח/הפסד</div>
+        <div class="card-value" id="summary-net">₪0</div>
+      </div>
+      <div class="card" id="card-tournaments">
+        <div class="card-label">טורנירים</div>
+        <div class="card-value" id="summary-count">0</div>
+      </div>
+      <div class="card" id="card-cashed">
+        <div class="card-label">ITM (נכנסנו לכסף)</div>
+        <div class="card-value" id="summary-itm">0%</div>
+      </div>
+      <div class="card" id="card-expenses">
+        <div class="card-label">סה"כ הוצאות</div>
+        <div class="card-value" id="summary-expenses">₪0</div>
+      </div>
+      <div class="card" id="card-winnings">
+        <div class="card-label">סה"כ זכיות</div>
+        <div class="card-value" id="summary-winnings">₪0</div>
+      </div>
+    </div>
+
+    <!-- Add Button -->
+    <div class="toolbar">
+      <button class="btn btn-add" onclick="openModal()">
+        + הוסף טורניר
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table id="tournaments-table">
+        <thead>
+          <tr>
+            <th>תאריך</th>
+            <th>מיקום</th>
+            <th>כניסה (₪)</th>
+            <th>כדורים</th>
+            <th>הוצאות נוספות (₪)</th>
+            <th>סה"כ הוצאה (₪)</th>
+            <th>נכנסנו לכסף?</th>
+            <th>סכום זכייה (₪)</th>
+            <th class="result-col">תוצאה</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr id="empty-row">
+            <td colspan="10" class="empty-msg">אין טורנירים עדיין — לחץ "הוסף טורניר" כדי להתחיל ♠</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModalOnOverlay(event)">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2 id="modal-title">הוסף טורניר</h2>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <form id="tournament-form" onsubmit="submitForm(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="f-date">תאריך *</label>
+            <input type="date" id="f-date" required>
+          </div>
+          <div class="form-group">
+            <label for="f-location">מיקום הטורניר *</label>
+            <div class="autocomplete-wrap">
+              <input type="text" id="f-location" autocomplete="off" placeholder="הקלד או בחר..." required>
+              <ul id="location-suggestions" class="suggestions hidden"></ul>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="f-entry">סכום כניסה לכדור (₪) *</label>
+            <input type="number" id="f-entry" min="0" step="1" placeholder="0" required>
+          </div>
+          <div class="form-group">
+            <label for="f-bullets">מספר כדורים / כניסות *</label>
+            <input type="number" id="f-bullets" min="1" step="1" value="1" required>
+          </div>
+          <div class="form-group">
+            <label for="f-other">הוצאות נוספות בטורניר (₪)</label>
+            <input type="number" id="f-other" min="0" step="1" placeholder="0">
+          </div>
+          <div class="form-group total-display">
+            <label>סה"כ הוצאה לטורניר</label>
+            <div class="calculated-field" id="calc-total">₪0</div>
+          </div>
+          <div class="form-group full-width">
+            <label>האם נכנסנו לכסף?</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="cashed" value="no" checked onchange="toggleWinnings()"> לא
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="cashed" value="yes" onchange="toggleWinnings()"> כן ✓
+              </label>
+            </div>
+          </div>
+          <div class="form-group" id="winnings-group" style="display:none">
+            <label for="f-winnings">סכום שזכינו (₪) *</label>
+            <input type="number" id="f-winnings" min="0" step="1" placeholder="0">
+          </div>
+          <div class="form-group result-display full-width">
+            <label>תוצאה</label>
+            <div class="calculated-field large" id="calc-result">₪0</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" onclick="closeModal()">ביטול</button>
+          <button type="submit" class="btn btn-save">שמור</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Modal -->
+  <div id="confirm-overlay" class="modal-overlay hidden">
+    <div class="modal confirm-modal">
+      <div class="modal-header">
+        <h2>מחיקת טורניר</h2>
+      </div>
+      <p>האם אתה בטוח שברצונך למחוק את הטורניר הזה?</p>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" onclick="closeConfirm()">ביטול</button>
+        <button class="btn btn-delete" onclick="confirmDelete()">מחק</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
